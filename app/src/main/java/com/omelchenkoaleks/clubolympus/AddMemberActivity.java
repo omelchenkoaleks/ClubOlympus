@@ -13,6 +13,8 @@ import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 
+import com.omelchenkoaleks.clubolympus.data.ClubOlympusContract.MemberEntry;
+
 public class AddMemberActivity extends AppCompatActivity {
     private EditText mFirstNameEditText;
     private EditText mLastNameEditText;
@@ -52,11 +54,11 @@ public class AddMemberActivity extends AppCompatActivity {
                  */
                 if (!(TextUtils.isEmpty(selectedGender))) {
                     if (selectedGender.equals("Male")) {
-                        mGender = 1;
+                        mGender = MemberEntry.GENDER_MALE;
                     } else if (selectedGender.equals("Female")) {
-                        mGender = 2;
+                        mGender = MemberEntry.GENDER_FEMALE;
                     } else {
-                        mGender = 0;
+                        mGender = MemberEntry.GENDER_UNKNOWN;
                     }
                 }
             }
