@@ -1,6 +1,9 @@
 package com.omelchenkoaleks.clubolympus;
 
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -16,7 +19,7 @@ public class AddMemberActivity extends AppCompatActivity {
     private ArrayAdapter mSpinnerAdapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_member);
 
@@ -30,5 +33,35 @@ public class AddMemberActivity extends AppCompatActivity {
                 this, R.array.array_gender, android.R.layout.simple_spinner_item);
         mSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mGenderSpinner.setAdapter(mSpinnerAdapter);
+
+        /*
+            для того, чтобы потом сохранять значения spinner нужно привязать какое-то
+            числовое значение для каждой из опций:
+         */
+        mGenderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedGender = (String) parent.getItemAtPosition(position);
+
+                /*
+                    класс TextUtils дает возможность проверить пуста ли строка
+                    метод возвращает true, если строка пуста, поэтому мы указываем ! не пуста
+                 */
+                if (!(TextUtils.isEmpty(selectedGender))) {
+                    if (selectedGender.equals("Male")) {
+                        mGender = 1;
+                    } else if (selectedGender.equals("Female")) {
+                        mGender = 2;
+                    } else {
+                        mGender = 0;
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                mGender = 0;
+            }
+        });
     }
 }
