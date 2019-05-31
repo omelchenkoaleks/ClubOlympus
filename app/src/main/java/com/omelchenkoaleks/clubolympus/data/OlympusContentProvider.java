@@ -103,13 +103,13 @@ public class OlympusContentProvider extends ContentProvider {
             case MEMBERS:
                 long id = db.insert(MemberEntry.TABLE_NAME, null, values);
                 if (id == -1) {
-                    Log.e("insertMethod", "Insertion of data in the table for " + uri);
+                    Log.e("insertMethod", "Insertion of data in the table failed for " + uri);
                     return null;
                 }
                 // возвращаем с добавленным id
                 return ContentUris.withAppendedId(uri, id);
             default:
-                throw new IllegalArgumentException("Insertion of data in the table for " + uri);
+                throw new IllegalArgumentException("Insertion of data in the table failed for " + uri);
         }
     }
 

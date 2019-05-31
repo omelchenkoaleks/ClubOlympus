@@ -1,5 +1,8 @@
 package com.omelchenkoaleks.clubolympus;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -9,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
@@ -18,7 +22,7 @@ import com.omelchenkoaleks.clubolympus.data.ClubOlympusContract.MemberEntry;
 public class AddMemberActivity extends AppCompatActivity {
     private EditText mFirstNameEditText;
     private EditText mLastNameEditText;
-    private EditText mGroupEditText;
+    private EditText mSportEditText;
     private Spinner mGenderSpinner;
     private int mGender = 0;
     private ArrayAdapter mSpinnerAdapter;
@@ -30,7 +34,7 @@ public class AddMemberActivity extends AppCompatActivity {
 
         mFirstNameEditText = findViewById(R.id.first_name_edit_text);
         mLastNameEditText = findViewById(R.id.last_name_edit_text);
-        mGroupEditText = findViewById(R.id.group_edit_text);
+        mSportEditText = findViewById(R.id.sport_edit_text);
         mGenderSpinner = findViewById(R.id.gender_spinner);
 
 
@@ -80,6 +84,7 @@ public class AddMemberActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save_member:
+                insertMember();
                 return true;
             case R.id.delete_member:
                 return true;
@@ -89,5 +94,36 @@ public class AddMemberActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void insertMember() {
+        String firstName = mFirstNameEditText.getText().toString().trim();
+        String lastName = mLastNameEditText.getText().toString().trim();
+        String sport = mSportEditText.getText().toString().trim();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MemberEntry.COLUMN_FIRST_NAME, firstName);
+        contentValues.put(MemberEntry.COLUMN_LAST_NAME, lastName);
+        contentValues.put(MemberEntry.COLUMN_SPORT, sport);
+        contentValues.put(MemberEntry.COLUMN_GENDER, mGender);
+
+        /* этот класс определяет - разрешает какой ContentProvider использовать
+                                  в зависимости от authority */
+        ContentResolver contentResolver = getContentResolver();
+        /*
+            здесь объект ContentResolver  по authority (указанному в параметрах)
+            определяет какого именно ContentProvider метод insert использовать
+
+            а т.к. в том методе может при ошибке вернуться null, то нужна проверка
+         */
+        Uri uri = contentResolver.insert(MemberEntry.CONTENT_URI, contentValues);
+
+        if (uri == null) {
+            Toast.makeText(this, "Insertion of data in the table failed",
+                    Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Data saved",
+                    Toast.LENGTH_LONG).show();
+        }
     }
 }
