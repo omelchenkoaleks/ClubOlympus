@@ -114,7 +114,19 @@ public class OlympusContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        SQLiteDatabase db = mOlympusDbOpenHelper.getWritableDatabase();
+
+        int match = uriMatcher.match(uri);
+        switch (match) {
+            case MEMBERS:
+                return db.delete(MemberEntry.TABLE_NAME, selection, selectionArgs);
+            case MEMBER_ID:
+                selection = MemberEntry._ID + "=?";
+                selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
+                return db.delete(MemberEntry.TABLE_NAME, selection, selectionArgs);
+                default:
+                    throw new IllegalArgumentException("Can`t delete this URI " + uri);
+        }
     }
 
     /*
@@ -136,7 +148,7 @@ public class OlympusContentProvider extends ContentProvider {
                 selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
                 return db.update(MemberEntry.TABLE_NAME, values, selection, selectionArgs);
             default:
-                throw new IllegalArgumentException("Can`t query incorrect URI " + uri);
+                throw new IllegalArgumentException("Can`t update this URI " + uri);
         }
     }
 
