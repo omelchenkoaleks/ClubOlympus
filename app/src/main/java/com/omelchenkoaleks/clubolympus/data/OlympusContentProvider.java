@@ -1,10 +1,15 @@
 package com.omelchenkoaleks.clubolympus.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.widget.Toast;
+
+import com.omelchenkoaleks.clubolympus.data.ClubOlympusContract.MemberEntry;
 
 public class OlympusContentProvider extends ContentProvider {
     OlympusDbOpenHelper mOlympusDbOpenHelper;
@@ -47,7 +52,40 @@ public class OlympusContentProvider extends ContentProvider {
                         String selection,
                         String[] selectionArgs,
                         String sortOrder) {
-        return null;
+        SQLiteDatabase db = mOlympusDbOpenHelper.getReadableDatabase();
+        Cursor cursor;
+
+        int match = uriMatcher.match(uri); // match - соответствие
+
+        /*
+            ПАРАМЕТРЫ:
+                1. один из видов реализованных uri:
+                    например: content://com.omelchenkoaleks.clubolympus/memebers/34
+                2. projection - имена столбцов (пример, если нам нужно вывести COLUMN_LAST_NAME и
+                COLUMN_GENDER, то массив projection будет такого вида:
+                    projection = {"lastName", "gender",}
+                3. selection = "_id=?" в SQL коде вместо ? будут подставленны аргументы, которые
+                мы указываем в selectionArgs (a в selection указывается способ отбора)
+                4. selectionArgs = 34 (та, последняя часть uri будет преобразована в число (long)
+
+         */
+        switch (match) {
+            case MEMBERS:
+                cursor = db.query(MemberEntry.TABLE_NAME,
+                        projection, selection, selectionArgs, null, null ,sortOrder);
+                break;
+            case MEMBER_ID:
+                selection = MemberEntry._ID + "=?"; // selection (отбор) - указываем параметр отбора (по столбцу id)
+                selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
+                cursor = db.query(MemberEntry.TABLE_NAME,
+                        projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            default:
+                Toast.makeText(getContext(), "Incorrect URI", Toast.LENGTH_LONG).show();
+                throw new IllegalArgumentException("Can`t query incorrect URI " + uri);
+        }
+
+        return cursor;
     }
 
     @Override
