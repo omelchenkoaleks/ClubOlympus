@@ -1,5 +1,6 @@
 package com.omelchenkoaleks.clubolympus.data;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 /*
@@ -25,8 +26,14 @@ public final class ClubOlympusContract {
         т.к. база данных для всего приложения, а не только для
         одной таблицы - ее название указываем здесь
      */
-    public static final String DATABASE_NAME = "membersDB";
+    public static final String DATABASE_NAME = "olympus";
     public static final int DATABASE_VERSION = 1;
+
+    public static final String SCHEME = "content://";
+    public static final String AUTHORITY = "com.omelchenkoaleks.clubolympus";
+    public static final String PATH_MEMBERS = "members";
+
+    public static final Uri BASE_CONTENT_URI = Uri.parse(SCHEME + AUTHORITY);
 
     public static final class MemberEntry implements BaseColumns {
         public static final String TABLE_NAME = "members";
