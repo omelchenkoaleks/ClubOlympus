@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.omelchenkoaleks.clubolympus.data.ClubOlympusContract.MemberEntry;
@@ -72,25 +73,44 @@ public class OlympusContentProvider extends ContentProvider {
         switch (match) {
             case MEMBERS:
                 cursor = db.query(MemberEntry.TABLE_NAME,
-                        projection, selection, selectionArgs, null, null ,sortOrder);
+                        projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             case MEMBER_ID:
                 selection = MemberEntry._ID + "=?"; // selection (отбор) - указываем параметр отбора (по столбцу id)
-                selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 cursor = db.query(MemberEntry.TABLE_NAME,
                         projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             default:
-                Toast.makeText(getContext(), "Incorrect URI", Toast.LENGTH_LONG).show();
                 throw new IllegalArgumentException("Can`t query incorrect URI " + uri);
         }
 
         return cursor;
     }
 
+    /*
+        1. параметр - куда нужно вставить
+        2. параметр - данные сохраняются в объект ContentValues (ключ - значение)
+
+        Возвращен будет объект uri уже с id новой созданной строки
+     */
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        return null;
+        SQLiteDatabase db = mOlympusDbOpenHelper.getWritableDatabase();
+
+        int match = uriMatcher.match(uri);
+        switch (match) {
+            case MEMBERS:
+                long id = db.insert(MemberEntry.TABLE_NAME, null, values);
+                if (id == -1) {
+                    Log.e("insertMethod", "Insertion of data in the table for " + uri);
+                    return null;
+                }
+                // возвращаем с добавленным id
+                return ContentUris.withAppendedId(uri, id);
+            default:
+                throw new IllegalArgumentException("Insertion of data in the table for " + uri);
+        }
     }
 
     @Override
