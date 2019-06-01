@@ -95,6 +95,28 @@ public class OlympusContentProvider extends ContentProvider {
      */
     @Override
     public Uri insert(Uri uri, ContentValues values) {
+        String firstName = values.getAsString(MemberEntry.COLUMN_FIRST_NAME);
+        if (firstName == null) {
+            throw new IllegalArgumentException("You have to input first name");
+        }
+
+        String lastName = values.getAsString(MemberEntry.COLUMN_LAST_NAME);
+        if (lastName == null) {
+            throw new IllegalArgumentException("You have to input last name");
+        }
+
+        Integer gender = values.getAsInteger(MemberEntry.COLUMN_GENDER);
+        if (gender == null || !(gender == MemberEntry.GENDER_UNKNOWN
+                || gender == MemberEntry.GENDER_MALE
+                || gender == MemberEntry.GENDER_FEMALE)) {
+            throw new IllegalArgumentException("You have to input correct gender");
+        }
+
+        String sport = values.getAsString(MemberEntry.COLUMN_SPORT);
+        if (sport == null) {
+            throw new IllegalArgumentException("You have to input sport");
+        }
+
         SQLiteDatabase db = mOlympusDbOpenHelper.getWritableDatabase();
 
         int match = uriMatcher.match(uri);
@@ -122,10 +144,10 @@ public class OlympusContentProvider extends ContentProvider {
                 return db.delete(MemberEntry.TABLE_NAME, selection, selectionArgs);
             case MEMBER_ID:
                 selection = MemberEntry._ID + "=?";
-                selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return db.delete(MemberEntry.TABLE_NAME, selection, selectionArgs);
-                default:
-                    throw new IllegalArgumentException("Can`t delete this URI " + uri);
+            default:
+                throw new IllegalArgumentException("Can`t delete this URI " + uri);
         }
     }
 
@@ -137,6 +159,37 @@ public class OlympusContentProvider extends ContentProvider {
      */
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        if (values.containsKey(MemberEntry.COLUMN_FIRST_NAME)) {
+            String firstName = values.getAsString(MemberEntry.COLUMN_FIRST_NAME);
+            if (firstName == null) {
+                throw new IllegalArgumentException("You have to input first name");
+            }
+        }
+
+        if (values.containsKey(MemberEntry.COLUMN_LAST_NAME)) {
+            String lastName = values.getAsString(MemberEntry.COLUMN_LAST_NAME);
+            if (lastName == null) {
+                throw new IllegalArgumentException("You have to input last name");
+            }
+        }
+
+        if (values.containsKey(MemberEntry.COLUMN_GENDER)) {
+            Integer gender = values.getAsInteger(MemberEntry.COLUMN_GENDER);
+            if (gender == null || !(gender == MemberEntry.GENDER_UNKNOWN
+                    || gender == MemberEntry.GENDER_MALE
+                    || gender == MemberEntry.GENDER_FEMALE)) {
+                throw new IllegalArgumentException("You have to input correct gender");
+            }
+        }
+
+        if (values.containsKey(MemberEntry.COLUMN_SPORT)) {
+            String sport = values.getAsString(MemberEntry.COLUMN_SPORT);
+            if (sport == null) {
+                throw new IllegalArgumentException("You have to input sport");
+            }
+        }
+
+
         SQLiteDatabase db = mOlympusDbOpenHelper.getWritableDatabase();
 
         int match = uriMatcher.match(uri);
@@ -145,7 +198,7 @@ public class OlympusContentProvider extends ContentProvider {
                 return db.update(MemberEntry.TABLE_NAME, values, selection, selectionArgs);
             case MEMBER_ID:
                 selection = MemberEntry._ID + "=?";
-                selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return db.update(MemberEntry.TABLE_NAME, values, selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("Can`t update this URI " + uri);
@@ -164,8 +217,8 @@ public class OlympusContentProvider extends ContentProvider {
                 return MemberEntry.CONTENT_MULTIPLE_ITEMS;
             case MEMBER_ID:
                 return MemberEntry.CONTENT_SINGLE_ITEM;
-                default:
-                    throw new IllegalArgumentException("Unknown URI: " + uri);
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
         }
     }
 }
