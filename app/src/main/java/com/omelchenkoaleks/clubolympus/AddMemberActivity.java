@@ -2,6 +2,7 @@ package com.omelchenkoaleks.clubolympus;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -31,6 +32,16 @@ public class AddMemberActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_member);
+
+        Intent intent = getIntent();
+        Uri currentMemberUri = intent.getData();
+        if (currentMemberUri == null) {
+            // если равен null - значит запуск произошел с помощью кнопки добавления
+            setTitle("Add a Member");
+        } else {
+            // елси не null, значит содержит тот uri, который указывает на нужную запись в db
+            setTitle("Edit a Member");
+        }
 
         mFirstNameEditText = findViewById(R.id.first_name_edit_text);
         mLastNameEditText = findViewById(R.id.last_name_edit_text);

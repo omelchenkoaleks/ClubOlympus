@@ -1,9 +1,12 @@
 package com.omelchenkoaleks.clubolympus;
 
+import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -43,6 +46,16 @@ public class MainActivity extends AppCompatActivity
 
         mMemberCursorAdapter = new MemberCursorAdapter(this, null, false);
         mListView.setAdapter(mMemberCursorAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, AddMemberActivity.class);
+                // создаем uri текущего члена клуба на котором был произведен клик
+                Uri currentMemberUri = ContentUris.withAppendedId(MemberEntry.CONTENT_URI, id);
+                intent.setData(currentMemberUri);
+                startActivity(intent);
+            }
+        });
         getSupportLoaderManager().initLoader(MEMBER_LOADER, null, this);
     }
 
