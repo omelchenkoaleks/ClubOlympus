@@ -49,6 +49,12 @@ public class AddMemberActivity extends AppCompatActivity
         if (mCurrentMemberUri == null) {
             // если равен null - значит запуск произошел с помощью кнопки добавления
             setTitle("Add a Member");
+            /*
+                вызываем этот метод, чтобы вызываемым им методом onPrepareOptionsMenu()
+                    скрыть опцию удаления,
+                        так как это нелогично при создании еще не существующего члена
+            */
+            invalidateOptionsMenu();
         } else {
             // елси не null, значит содержит тот uri, который указывает на нужную запись в db
             setTitle("Edit a Member");
@@ -96,6 +102,18 @@ public class AddMemberActivity extends AppCompatActivity
                 mGender = 0;
             }
         });
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        if (mCurrentMemberUri == null) {
+            MenuItem menuItem = menu.findItem(R.id.delete_member);
+            menuItem.setVisible(false);
+        }
+
+        return true;
     }
 
     @Override
@@ -154,7 +172,6 @@ public class AddMemberActivity extends AppCompatActivity
                 Toast.makeText(this,
                         "Member is deleted", Toast.LENGTH_LONG).show();
             }
-
             finish();
         }
     }
