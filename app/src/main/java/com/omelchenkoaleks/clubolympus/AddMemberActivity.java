@@ -50,6 +50,8 @@ public class AddMemberActivity extends AppCompatActivity
         } else {
             // елси не null, значит содержит тот uri, который указывает на нужную запись в db
             setTitle("Edit a Member");
+            // нужно инициализировать loader
+            getSupportLoaderManager().initLoader(EDIT_MEMBER_LADER, null, this);
         }
 
         mFirstNameEditText = findViewById(R.id.first_name_edit_text);
@@ -92,9 +94,6 @@ public class AddMemberActivity extends AppCompatActivity
                 mGender = 0;
             }
         });
-
-        // нужно инициализировать loader
-        getSupportLoaderManager().initLoader(EDIT_MEMBER_LADER, null, this);
     }
 
     @Override
@@ -107,7 +106,7 @@ public class AddMemberActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save_member:
-                insertMember();
+                saveMember();
                 return true;
             case R.id.delete_member:
                 return true;
@@ -119,7 +118,7 @@ public class AddMemberActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void insertMember() {
+    private void saveMember() {
         String firstName = mFirstNameEditText.getText().toString().trim();
         String lastName = mLastNameEditText.getText().toString().trim();
         String sport = mSportEditText.getText().toString().trim();
@@ -130,23 +129,41 @@ public class AddMemberActivity extends AppCompatActivity
         contentValues.put(MemberEntry.COLUMN_SPORT, sport);
         contentValues.put(MemberEntry.COLUMN_GENDER, mGender);
 
-        /* этот класс определяет - разрешает какой ContentProvider использовать
+        /*
+            используем переменную mCurrentMemberUri, чтобы либо просто сохранять новые данные,
+            либо сохранять уже отредактированные данные = если null - первое, если нет - второе
+         */
+        if (mCurrentMemberUri == null) {
+
+            /* этот класс определяет - разрешает какой ContentProvider использовать
                                   в зависимости от authority */
-        ContentResolver contentResolver = getContentResolver();
+            ContentResolver contentResolver = getContentResolver();
         /*
             здесь объект ContentResolver  по authority (указанному в параметрах)
             определяет какого именно ContentProvider метод insert использовать
 
             а т.к. в том методе может при ошибке вернуться null, то нужна проверка
          */
-        Uri uri = contentResolver.insert(MemberEntry.CONTENT_URI, contentValues);
+            Uri uri = contentResolver.insert(MemberEntry.CONTENT_URI, contentValues);
 
-        if (uri == null) {
-            Toast.makeText(this, "Insertion of data in the table failed",
-                    Toast.LENGTH_LONG).show();
+            if (uri == null) {
+                Toast.makeText(this, "Insertion of data in the table failed",
+                        Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Data saved",
+                        Toast.LENGTH_LONG).show();
+            }
+
         } else {
-            Toast.makeText(this, "Data saved",
-                    Toast.LENGTH_LONG).show();
+            int rowsChanged = getContentResolver()
+                    .update(mCurrentMemberUri, contentValues, null, null);
+
+            if (rowsChanged == 0) {
+                Toast.makeText(this,
+                        "Saving of data in the table failed", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Member updated", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
