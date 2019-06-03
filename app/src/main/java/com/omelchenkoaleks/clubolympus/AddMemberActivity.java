@@ -50,7 +50,8 @@ public class AddMemberActivity extends AppCompatActivity
         } else {
             // елси не null, значит содержит тот uri, который указывает на нужную запись в db
             setTitle("Edit a Member");
-            // нужно инициализировать loader
+            /* нужно инициализировать loader = он здесь находится, потому-что он должен
+               создаваться только в том случае, если редактируется уже существующий член клуба */
             getSupportLoaderManager().initLoader(EDIT_MEMBER_LADER, null, this);
         }
 
@@ -58,7 +59,6 @@ public class AddMemberActivity extends AppCompatActivity
         mLastNameEditText = findViewById(R.id.last_name_edit_text);
         mSportEditText = findViewById(R.id.sport_edit_text);
         mGenderSpinner = findViewById(R.id.gender_spinner);
-
 
         mSpinnerAdapter = ArrayAdapter.createFromResource(
                 this, R.array.array_gender, android.R.layout.simple_spinner_item);
@@ -119,9 +119,31 @@ public class AddMemberActivity extends AppCompatActivity
     }
 
     private void saveMember() {
+        // помещаем извлеченные данные в наши переменные
         String firstName = mFirstNameEditText.getText().toString().trim();
         String lastName = mLastNameEditText.getText().toString().trim();
         String sport = mSportEditText.getText().toString().trim();
+
+        /*
+            теперь можно проверить заполнены они или нет ... *
+            isEmpty возвращает true, если нет никаких символов в строке (пустая)
+         */
+        if (TextUtils.isEmpty(firstName)) {
+            Toast.makeText(this, "Input the first name",
+                    Toast.LENGTH_LONG).show();
+            return;
+        } else if (TextUtils.isEmpty(lastName)) {
+            Toast.makeText(this, "Input the last name",
+                    Toast.LENGTH_LONG).show();
+            return;
+        } else if (TextUtils.isEmpty(sport)) {
+            Toast.makeText(this, "Input the sport",
+                    Toast.LENGTH_LONG).show();
+            return;
+        } else if (mGender == MemberEntry.GENDER_UNKNOWN) {
+            Toast.makeText(this, "Choose the gender",
+                    Toast.LENGTH_LONG).show();
+        }
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(MemberEntry.COLUMN_FIRST_NAME, firstName);
